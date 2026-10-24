@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Reveal</title>
+    <style>
+        /* Base Variables & Theme */
+        :root {
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(22, 30, 46, 0.9);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --primary-accent: #6366f1;
+            --primary-hover: #4f46e5;
+            --acrobat-color: #38bdf8;
+            --trickster-color: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        /* Input Form Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 32px 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-field, .select-field {
+            width: 100%;
+            background-color: rgba(10, 14, 23, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-field:focus, .select-field:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+
+        .input-field {
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--primary-accent);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.85);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+        }
+
+        .error-message {
+            display: none;
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 0.85rem;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .player-info-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Role Reveal View Screen */
+        #reveal-screen {
+            display: none;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .reveal-card {
+            min-height: 480px;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        /* Custom Visual Backgrounds for Roles */
+        .bg-acrobat {
+            background-image: linear-gradient(to bottom, rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.95)), 
+                              url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .bg-trickster {
+            background-image: linear-gradient(to bottom, rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.95)), 
+                              url('https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .role-header-badge {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .role-content {
+            margin: auto 0;
+        }
+
+        .role-subtitle {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .role-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
+
+        .role-title.acrobat {
+            color: var(--acrobat-color);
+        }
+
+        .role-title.trickster {
+            color: var(--trickster-color);
+        }
+
+        .role-desc {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            max-width: 280px;
+            line-height: 1.5;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Input Setup Screen -->
+        <main id="setup-screen" class="card">
+            <h1 class="title">Role Reveal</h1>
+
+            <div id="error-message" class="error-message"></div>
+
+            <!-- 1. Room Code Input -->
+            <div class="form-group">
+                <label class="label" for="room-code">Room Code</label>
+                <input 
+                    type="text" 
+                    id="room-code" 
+                    class="input-field" 
+                    placeholder="E.G. A3F8" 
+                    maxlength="4" 
+                    autocomplete="off" 
+                    spellcheck="false"
+                >
+            </div>
+
+            <!-- 2. Dynamic Player Index Dropdown Selector -->
+            <div class="form-group">
+                <label class="label" for="player-select">Select Player</label>
+                <select id="player-select" class="select-field">
+                    <option value="1">Player 1</option>
+                    <option value="2">Player 2</option>
+                </select>
+                <div id="player-info" class="player-info-text">Enter room code to detect player count.</div>
+            </div>
+
+            <!-- 3. Reveal Role Button -->
+            <button class="btn-primary" onclick="handleRevealRole()">Reveal Role</button>
+        </main>
+
+        <!-- Role Reveal View Screen -->
+        <section id="reveal-screen">
+            <div id="reveal-card" class="reveal-card">
+                
+                <div id="player-badge" class="role-header-badge">Player 1</div>
+
+                <div class="role-content">
+                    <div class="role-subtitle">Your Role</div>
+                    <div id="role-title" class="role-title"></div>
+                    <p id="role-desc" class="role-desc"></p>
+                </div>
+
+                <button class="btn-secondary" onclick="handleReset()">Hide / Back</button>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // Base-36 decoder to retrieve original numeric seed
+        function decodeBase36(codeStr) {
+            const str = codeStr.toUpperCase().trim();
+            if (str.length !== 4) return null;
+
+            let seed = 0;
+            for (let i = 0; i < 4; i++) {
+                const idx = ALPHABET.indexOf(str[i]);
+                if (idx === -1) return null; // Invalid character
+                seed = seed * 36 + idx;
+            }
+            return seed;
+        }
+
+        // Calculates total player count based on seed (2, 3, or 4 players)
+        function getTotalPlayers(seed) {
+            return 2 + (seed % 3);
+        }
+
+        // Calculates 0-indexed Trickster player position using XOR + Knuth Hash
+        function getTricksterIndex(seed, totalPlayers) {
+            // XOR mask (0x5A5A) + Knuth 32-bit multiplicative constant (2654435761)
+            const maskedSeed = seed ^ 0x5A5A;
+            const hash = Math.abs(Math.imul(maskedSeed, 2654435761));
+            return hash % totalPlayers;
+        }
+
+        // DOM Handles
+        const setupScreen = document.getElementById('setup-screen');
+        const revealScreen = document.getElementById('reveal-screen');
+        const revealCard = document.getElementById('reveal-card');
+        const roomCodeInput = document.getElementById('room-code');
+        const playerSelect = document.getElementById('player-select');
+        const playerInfo = document.getElementById('player-info');
+        const errorMessage = document.getElementById('error-message');
+
+        const playerBadge = document.getElementById('player-badge');
+        const roleTitle = document.getElementById('role-title');
+        const roleDesc = document.getElementById('role-desc');
+
+        function showError(msg) {
+            errorMessage.innerText = msg;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Dynamically update available dropdown options based on room code
+        function updatePlayerDropdown() {
+            const code = roomCodeInput.value.trim();
+            if (code.length === 4) {
+                const seed = decodeBase36(code);
+                if (seed !== null) {
+                    hideError();
+                    const totalPlayers = getTotalPlayers(seed);
+                    const currentSelected = parseInt(playerSelect.value, 10);
+
+                    // Rebuild options dropdown
+                    playerSelect.innerHTML = '';
+                    for (let i = 1; i <= totalPlayers; i++) {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = `Player ${i}`;
+                        playerSelect.appendChild(option);
+                    }
+
+                    // Restore selection if valid within total range
+                    if (currentSelected <= totalPlayers) {
+                        playerSelect.value = currentSelected;
+                    } else {
+                        playerSelect.value = 1;
+                    }
+
+                    playerInfo.innerText = `Detected ${totalPlayers}-player game from code.`;
+                    return;
+                }
+            }
+            playerInfo.innerText = 'Enter room code to detect player count.';
+        }
+
+        // Input listener for dynamic player dropdown updates
+        roomCodeInput.addEventListener('input', updatePlayerDropdown);
+
+        function handleRevealRole() {
+            hideError();
+            const code = roomCodeInput.value.trim();
+
+            if (code.length !== 4) {
+                showError("Please enter a valid 4-character room code.");
+                return;
+            }
+
+            const seed = decodeBase36(code);
+            if (seed === null) {
+                showError("Invalid characters in room code.");
+                return;
+            }
+
+            const totalPlayers = getTotalPlayers(seed);
+            const selectedPlayer = parseInt(playerSelect.value, 10);
+
+            // Calculate trickster player index (0-indexed converted to 1-indexed)
+            const tricksterIndex = getTricksterIndex(seed, totalPlayers);
+            const tricksterPlayerNumber = tricksterIndex + 1;
+
+            const isTrickster = (selectedPlayer === tricksterPlayerNumber);
+
+            // Update Reveal View Screen UI
+            playerBadge.innerText = `Player ${selectedPlayer}`;
+
+            if (isTrickster) {
+                revealCard.className = "reveal-card bg-trickster";
+                roleTitle.className = "role-title trickster";
+                roleTitle.innerText = "TRICKSTER";
+                roleDesc.innerText = "You are the Trickster! Outsmart the acrobats without revealing your identity.";
+            } else {
+                revealCard.className = "reveal-card bg-acrobat";
+                roleTitle.className = "role-title acrobat";
+                roleTitle.innerText = "ACROBAT";
+                roleDesc.innerText = "You are an Acrobat! Cooperate with your team to discover the Trickster.";
+            }
+
+            // Transition screens
+            setupScreen.style.display = 'none';
+            revealScreen.style.display = 'block';
+        }
+
+        function handleReset() {
+            revealScreen.style.display = 'none';
+            setupScreen.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
